@@ -1,5 +1,5 @@
-images/
-db/
+**/*.jpg
+**/*.db
 export/
 
 #ignore thumbnails created by windows
