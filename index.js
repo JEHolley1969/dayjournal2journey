@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var glob = require("glob");
-var fsx = require('fs-extra');
+var fsx = require("fs-extra");
 var sqlite3 = require("sqlite3").verbose();
 
 var file = "./db/dayjournal.db";
@@ -10,23 +10,23 @@ var weatherMap = require("./templates/weatherMap.json");
 
 if (fs.existsSync(file)) {
     var db = new sqlite3.Database(file, sqlite3.OPEN_READONLY);
-    db.serialize(readEntries);
+    db.serialize(function () {
+        db.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
+            if (err) {
+                console.error("Error occurred during processing.");
+            }
+            processRow(row);
+        });
+    });
     db.close();
 } else {
     console.error("Database can not be found or invalid format!");
 }
 
-function readEntries() {
-    db.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function(err, row) {
-        if (err) { console.error("Error occurred during processing."); }
-        processRow(row);
-    });
-}
-
 function processRow(row) {
     var newItem = createEntry(row);
 
-    if (row.HASPHOTOS == 1) {
+    if (row.HASPHOTOS === 1) {
         newItem.photos = processImages(newItem.id, row);
     }
 
@@ -49,8 +49,9 @@ function createEntry(dayJournalEntry) {
     newItem.lat = parseFloat(dayJournalEntry.LOC_LATITUDE);
     newItem.lon = parseFloat(dayJournalEntry.LOC_LONGITUDE);
 
-    if (dayJournalEntry.W_CELSIUS)
+    if (dayJournalEntry.W_CELSIUS) {
         newItem.weather.degree_c = parseFloat(dayJournalEntry.W_CELSIUS);
+    }
 
     if (dayJournalEntry.W_ICONNAME) {
         newItem.weather.description = weatherMap[dayJournalEntry.W_ICONNAME].desc;
@@ -65,7 +66,7 @@ function createEntry(dayJournalEntry) {
 function processImages(id, row) {
     var photos = [];
 
-    glob.sync("**/images/" + row.UUID + "*").forEach(function(photo) {
+    glob.sync("**/images/" + row.UUID + "*").forEach(function (photo) {
         var ext = generateUuid();
         var newPhotoName = id + "-" + ext + ".jpg";
 
@@ -88,10 +89,10 @@ function saveEntry(id, content) {
 }
 
 function generateUuid() {
-    function S4() {
+    function s4() {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
 
-    guid = (S4() + S4() + S4() + "4" + S4().substr(0, 3)).toLowerCase();
+    var guid = (s4() + s4() + s4() + s4()).toLowerCase();
     return guid;
 }
