@@ -1,0 +1,98 @@
+{
+    "wsymbol_0001_sunny.png": {
+        "img": "01d",
+        "desc": "sky is clear"
+    },
+    "wsymbol_0002_sunny_intervals.png": {
+        "img": "02d",
+        "desc": "few clouds"
+    },
+    "wsymbol_0003_white_cloud.png": {
+        "img": "03d",
+        "desc": "overcast clouds"
+    },
+    "wsymbol_0004_black_low_cloud.png": {
+        "img": "04d",
+        "desc": "scattered clouds"
+    },
+    "wsymbol_0006_mist.png": {
+        "img": "50d",
+        "desc": "mist"
+    },
+    "wsymbol_0007_fog.png": {
+        "img": "50d",
+        "desc": "Fog"
+    },
+    "wsymbol_0008_clear_sky_night.png": {
+        "img": "01n",
+        "desc": "sky is clear"
+    },
+    "wsymbol_0009_light_rain_showers.png": {
+        "img": "10d",
+        "desc": "light rain"
+    },
+    "wsymbol_0010_heavy_rain_showers.png": {
+        "img": "10d",
+        "desc": "heavy intensity rain"
+    },
+    "wsymbol_0011_light_snow_showers.png": {
+        "img": "13d",
+        "desc": "light snow"
+    },
+    "wsymbol_0012_heavy_snow_showers.png": {
+        "img": "13d",
+        "desc": "heavy snow"
+    },
+    "wsymbol_0013_sleet_showers.png": {
+        "img": "09d",
+        "desc": "light intensity shower rain"
+    },
+    "wsymbol_0016_thundery_showers.png": {
+        "img": "11d",
+        "desc": "thunderstorm with rain"
+    },
+    "wsymbol_0017_cloudy_with_light_rain.png": {
+        "img": "09d",
+        "desc": "light intensity shower rain"
+    },
+    "wsymbol_0018_cloudy_with_heavy_rain.png": {
+        "img": "09d",
+        "desc": "heavy intensity rain"
+    },
+    "wsymbol_0021_cloudy_with_sleet.png": {
+        "img": "10d",
+        "desc": "heavy intensity shower rain"
+    },
+    "wsymbol_0024_thunderstorms.png": {
+        "img": "11d",
+        "desc": "thunderstorm"
+    },
+    "wsymbol_0026_heavy_rain_showers_night.png": {
+        "img": "09n",
+        "desc": ""
+    },
+    "wsymbol_0033_cloudy_with_light_rain_night.png": {
+        "img": "04n",
+        "desc": "light rain"
+    },
+    "wsymbol_0034_cloudy_with_heavy_rain_night.png": {
+        "img": "09n",
+        "desc": "heavy intensity rain"
+    },
+    "wsymbol_0035_cloudy_with_light_snow_night.png": {
+        "img": "13n",
+        "desc": "light snow"
+    },
+    "wsymbol_0037_cloudy_with_sleet_night.png": {
+        "img": "10n",
+        "desc": "moderate rain"
+    },
+    "wsymbol_0041_partly_cloudy_night.png": {
+        "img": "02n",
+        "desc": "few clouds"
+    },
+    "wsymbol_0042_cloudy_night.png": {
+        "img": "03n",
+        "desc": "overcast clouds"
+    }
+}

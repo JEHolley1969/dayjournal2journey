@@ -1,0 +1,14 @@
+{
+    "beautify.onSave": ["css", "js", "json"],
+    "beautify.onSaveIgnore": [
+        "**/minified/**",
+        "**/*+(.|_|-)min.*"
+    ],
+    "css": {
+        "indent_size": 2
+    },
+    "end_with_newline": true,
+    "indent_size": 4,
+    "indent_char": " ",
+    "newline_between_rules": true
+}

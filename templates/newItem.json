@@ -1,0 +1,22 @@
+{
+    "text": "",
+    "date_modified": null,
+    "date_journal": null,
+    "id": null,
+    "preview_text": "",
+    "address": "",
+    "music_artist": "",
+    "music_title": "",
+    "lat": null,
+    "lon": null,
+    "mood": 0,
+    "weather": {
+        "id": 701,
+        "degree_c": null,
+        "description": "",
+        "icon": "",
+        "place": ""
+    },
+    "photos": [],
+    "tags": []
+}
