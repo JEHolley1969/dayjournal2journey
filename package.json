@@ -4,7 +4,7 @@
   "description": "convert Day Journal entries to Journey entries",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "eslint --fix index.js && node index.js"
   },
   "author": "Mark Boomaars <mboomaars@gmail.com>",
   "license": "MIT",
