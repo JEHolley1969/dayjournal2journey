@@ -103,8 +103,6 @@
 		"no-mixed-requires": [2, { "grouping": true, "allowCall": true }],
 		"no-new-require": 2,
 		"no-path-concat": 2,
-		"no-restricted-imports": [2, "domain", "freelist", "smalloc", "sys", "colors"],
-		"no-restricted-modules": [2, "domain", "freelist", "smalloc", "sys", "colors"],
 
 		// Stylistic Issues
 		"array-bracket-spacing": [2, "never"],

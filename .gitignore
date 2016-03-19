@@ -2,6 +2,7 @@
 db/*.db
 out/*.json
 export/
+**/*.zip
 
 #ignore thumbnails created by windows
 Thumbs.db
