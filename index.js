@@ -5,15 +5,15 @@ var glob = require("glob");
 var path = require("path");
 var sqlite3 = require("sqlite3").verbose();
 
-var file = "./db/dayjournal.db";
-var tpl = require("./templates/newItem.json");
-var weatherMap = require("./templates/weatherMap.json");
+var db = "./dayjournal.db";
+var tpl = require("./newItem.json");
+var weatherMap = require("./weatherMap.json");
 
-if (checkOutputDir() && fs.existsSync(file)) {
-    var db = new sqlite3.Database(file, sqlite3.OPEN_READONLY);
+if (checkOutputDir() && fs.existsSync(db)) {
+    var sqldb = new sqlite3.Database(db, sqlite3.OPEN_READONLY);
 
-    db.serialize(function () {
-        db.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
+    sqldb.serialize(function () {
+        sqldb.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
             if (err) {
                 console.error("Error occurred during processing.");
             }
@@ -21,7 +21,7 @@ if (checkOutputDir() && fs.existsSync(file)) {
         });
     });
 
-    db.close();
+    sqldb.close();
 } else {
     console.error("Database can not be found or invalid format!");
 }
