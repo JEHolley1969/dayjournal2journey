@@ -1,4 +1,4 @@
-//var EasyZip = require("easy-zip").EasyZip;
+// var EasyZip = require("easy-zip").EasyZip;
 var fs = require("fs");
 var fsx = require("fs-extra");
 var glob = require("glob");
@@ -6,10 +6,13 @@ var path = require("path");
 var sqlite3 = require("sqlite3").verbose();
 
 var db = "./dayjournal.db";
+var imageCache = {};
 var tpl = require("./newItem.json");
 var weatherMap = require("./weatherMap.json");
 
 if (checkOutputDir() && fs.existsSync(db)) {
+    createImageCache();
+
     var sqldb = new sqlite3.Database(db, sqlite3.OPEN_READONLY);
 
     sqldb.serialize(function () {
@@ -26,6 +29,30 @@ if (checkOutputDir() && fs.existsSync(db)) {
     console.error("Database can not be found or invalid format!");
 }
 
+function createImageCache() {
+    console.log("Creating image cache...");
+
+    glob.sync("**/images/*.jpg").forEach(function (photo) {
+        var uuid = photo.split("-")[0].split("/")[1].split(".")[0];
+
+        if (imageCache[uuid]) {
+            imageCache[uuid].push(photo);
+        } else {
+            imageCache[uuid] = [];
+            imageCache[uuid].push(photo);
+        }
+    });
+}
+
+function checkOutputDir() {
+    var entries = glob.sync("**/out/*.json");
+    if (entries.length > 0) {
+        console.error("The `out` directory already contains files. Aborting operation.");
+        return false;
+    }
+    return true;
+}
+
 function processRow(row) {
     console.log("Creating new entry for uuid ", row.DTM);
     var newItem = createEntry(row);
@@ -37,15 +64,6 @@ function processRow(row) {
 
     console.log("Saving entry to output directory...");
     saveEntry(newItem.id, newItem);
-}
-
-function checkOutputDir() {
-    var entries = glob.sync("**/out/*.json");
-    if (entries.length > 0) {
-        console.error("The `out` directory already contains files. Aborting operation.");
-        return false;
-    }
-    return true;
 }
 
 function createEntry(dayJournalEntry) {
@@ -79,15 +97,15 @@ function createEntry(dayJournalEntry) {
 function processImages(id, row) {
     var photos = [];
 
-    glob.sync("**/images/" + row.UUID + "*").forEach(function (photo) {
-        var ext = generateUuid();
-        var newPhotoName = id + "-" + ext + ".jpg";
-        var from = path.join(__dirname, photo);
-        var to = path.join(__dirname, "out", newPhotoName);
-
-        photos.push(newPhotoName);
-        fsx.copySync(from, to);
-    });
+    if (imageCache[row.UUID]) {
+        imageCache[row.UUID].forEach(function (photo) {
+            var newPhotoName = id + "-" + generateUuid() + ".jpg";
+            photos.push(newPhotoName);
+            fsx.copySync(photo, path.join(__dirname, "out", newPhotoName));
+        });
+    } else {
+        console.warn("No image present for", row.UUID);
+    }
 
     return photos;
 }
@@ -121,7 +139,5 @@ function generateUuid() {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
 
-    var guid = (s4() + s4() + s4() + s4()).toLowerCase();
-
-    return guid;
+    return (s4() + s4() + s4() + s4()).toLowerCase();
 }
