@@ -24,20 +24,21 @@ if (fs.existsSync(file)) {
 }
 
 function processRow(row) {
+    console.log("Creating new entry for uuid ", row.DTM);
     var newItem = createEntry(row);
 
     if (row.HASPHOTOS === 1) {
+        console.log("Processing image...");
         newItem.photos = processImages(newItem.id, row);
     }
 
+    console.log("Saving entry to output directory...");
     saveEntry(newItem.id, newItem);
 }
 
 function createEntry(dayJournalEntry) {
     var id = generateUuid();
     var newItem = JSON.parse(JSON.stringify(tpl));
-
-    console.log("Creating new entry with id ", dayJournalEntry.DTM + "-" + id);
 
     newItem.id = dayJournalEntry.DTM + "-" + id;
     newItem.text = dayJournalEntry.CONTENT;
@@ -72,8 +73,6 @@ function processImages(id, row) {
 
         photos.push(newPhotoName);
 
-        console.log("Processing image...");
-
         var from = path.resolve(__dirname, photo);
         var to = path.join(__dirname, "out", newPhotoName);
 
@@ -84,8 +83,8 @@ function processImages(id, row) {
 }
 
 function saveEntry(id, content) {
-    console.log("Saving entry to output directory...");
-    fs.writeFileSync(path.join("./out", id + ".json"), JSON.stringify(content), "utf8");
+    fs.writeFileSync(path.join(__dirname, "out", id + ".json"),
+                     JSON.stringify(content), "utf8");
 }
 
 function generateUuid() {
@@ -94,5 +93,6 @@ function generateUuid() {
     }
 
     var guid = (s4() + s4() + s4() + s4()).toLowerCase();
+
     return guid;
 }
