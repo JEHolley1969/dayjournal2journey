@@ -10,6 +10,11 @@ var imageCache = {};
 var tpl = require("./newItem.json");
 var weatherMap = require("./weatherMap.json");
 
+/**
+ * Start processing on 2 conditions:
+ *  1. The output directory is empty
+ *  2. The database file is present
+ */
 if (checkOutputDir() && fs.existsSync(db)) {
     createImageCache();
 
@@ -29,6 +34,10 @@ if (checkOutputDir() && fs.existsSync(db)) {
     console.error("Database can not be found or invalid format!");
 }
 
+/**
+ * Create a cache for all images inside the /images folder
+ * This speeds up the app by about a 100 times
+ */
 function createImageCache() {
     console.log("Creating image cache...");
 
@@ -44,6 +53,10 @@ function createImageCache() {
     });
 }
 
+/**
+ * Check for the presence of JSON files in the output directory
+ * Abort the operation if files exist
+ */
 function checkOutputDir() {
     var entries = glob.sync("**/out/*.json");
     if (entries.length > 0) {
@@ -53,6 +66,10 @@ function checkOutputDir() {
     return true;
 }
 
+/**
+ * Process the current row in the loop
+ * @param  {any} row
+ */
 function processRow(row) {
     console.log("Creating new entry for uuid ", row.DTM);
     var newItem = createEntry(row);
@@ -66,6 +83,11 @@ function processRow(row) {
     saveEntry(newItem.id, newItem);
 }
 
+/**
+ * Create a new Journey object based on the template using
+ * date stored in the current Day Journal entry
+ * @param  {any} dayJournalEntry
+ */
 function createEntry(dayJournalEntry) {
     var id = generateUuid();
     var newItem = JSON.parse(JSON.stringify(tpl));
@@ -94,6 +116,11 @@ function createEntry(dayJournalEntry) {
     return newItem;
 }
 
+/**
+ * Process any images stored with the Day Journal entry
+ * @param  {any} id     Journey ID
+ * @param  {any} row    current row with Day Journal data
+ */
 function processImages(id, row) {
     var photos = [];
 
@@ -110,9 +137,14 @@ function processImages(id, row) {
     return photos;
 }
 
-function saveEntry(id, content) {
+/**
+ * Save the newly created Journey item to disk
+ * @param  {any} id             Journey ID
+ * @param  {any} journeyEntry   Journey object
+ */
+function saveEntry(id, journeyEntry) {
     fs.writeFileSync(path.join(__dirname, "out", id + ".json"),
-                     JSON.stringify(content), "utf8");
+                     JSON.stringify(journeyEntry), "utf8");
 }
 
 // function zipEntries() {
@@ -134,6 +166,9 @@ function saveEntry(id, content) {
 //     });
 // }
 
+/**
+ * Generate a unique identifier
+ */
 function generateUuid() {
     function s4() {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
