@@ -1,4 +1,4 @@
-var EasyZip = require("easy-zip").EasyZip;
+//var EasyZip = require("easy-zip").EasyZip;
 var fs = require("fs");
 var fsx = require("fs-extra");
 var glob = require("glob");
@@ -82,14 +82,12 @@ function processImages(id, row) {
     glob.sync("**/images/" + row.UUID + "*").forEach(function (photo) {
         var ext = generateUuid();
         var newPhotoName = id + "-" + ext + ".jpg";
-
-        photos.push(newPhotoName);
-
-        var from = path.resolve(__dirname, photo);
+        var from = path.join(__dirname, photo);
         var to = path.join(__dirname, "out", newPhotoName);
 
+        photos.push(newPhotoName);
         fsx.copySync(from, to);
-    }, this);
+    });
 
     return photos;
 }
