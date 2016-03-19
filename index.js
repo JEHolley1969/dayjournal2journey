@@ -169,7 +169,7 @@ function zipEntries() {
         type: "nodebuffer"
     });
 
-    fs.writeFile("./export.zip", content, function (err) {
+    fs.writeFile("./djexport.zip", content, function (err) {
         if (err) {
             console.error("An error occurred during the zipping proces!", err);
         }
