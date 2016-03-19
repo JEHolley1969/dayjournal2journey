@@ -9,9 +9,9 @@
   "author": "Mark Boomaars <mboomaars@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "easy-zip": "0.0.4",
     "fs-extra": "^0.26.7",
     "glob": "^7.0.3",
+    "jszip": "^2.5.0",
     "sqlite3": "^3.1.1"
   },
   "devDependencies": {}

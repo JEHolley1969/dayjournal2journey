@@ -1,7 +1,7 @@
-// var EasyZip = require("easy-zip").EasyZip;
 var fs = require("fs");
 var fsx = require("fs-extra");
 var glob = require("glob");
+var JSZip = require("jszip");
 var path = require("path");
 var sqlite3 = require("sqlite3").verbose();
 
@@ -23,9 +23,15 @@ if (isEmpty() && fs.existsSync(db)) {
     sqldb.serialize(function () {
         sqldb.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
             if (err) {
-                console.error("Error occurred during processing!");
+                console.error("Error occurred during processing!", err);
             }
             processRow(row);
+        }, function (err, count) {
+            if (err) {
+                console.error("Error occurred during processing!", err);
+            }
+            console.log("Successfully processed " + count + " items.");
+            zipEntries();
         });
     });
 
@@ -36,7 +42,7 @@ if (isEmpty() && fs.existsSync(db)) {
 
 /**
  * Create a cache for all images inside the /images folder
- * This speeds up the app by about a 100 times
+ * This speeds up the app about a 100 times
  */
 function createImageCache() {
     console.log("Creating image cache...");
@@ -44,12 +50,10 @@ function createImageCache() {
     glob.sync("**/images/*.jpg").forEach(function (photo) {
         var uuid = photo.split("-")[0].split("/")[1].split(".")[0];
 
-        if (imageCache[uuid]) {
-            imageCache[uuid].push(photo);
-        } else {
+        if (!imageCache[uuid]) {
             imageCache[uuid] = [];
-            imageCache[uuid].push(photo);
         }
+        imageCache[uuid].push(photo);
     });
 }
 
@@ -118,8 +122,8 @@ function createEntry(dayJournalEntry) {
 
 /**
  * Process any images stored with the Day Journal entry
- * @param  {any} id     Journey ID
- * @param  {any} row    current row with Day Journal data
+ * @param  {string} id      Journey ID
+ * @param  {any}    row     current row with Day Journal data
  */
 function processImages(id, row) {
     var photos = [];
@@ -139,32 +143,40 @@ function processImages(id, row) {
 
 /**
  * Save the newly created Journey item to disk
- * @param  {any} id             Journey ID
- * @param  {any} journeyEntry   Journey object
+ * @param  {string} id              Journey ID
+ * @param  {any}    journeyEntry    Journey object
  */
 function saveEntry(id, journeyEntry) {
     fs.writeFileSync(path.join(__dirname, "out", id + ".json"),
                      JSON.stringify(journeyEntry), "utf8");
 }
 
-// function zipEntries() {
-//     var zip = new EasyZip();
-//     var files = [];
+/**
+ * Zip the contents of the output directory
+ */
+function zipEntries() {
+    var zip = new JSZip();
+    var files = glob.sync("**/out/*.j*");
 
-//     console.log("Zipping the contents of the output directory...");
+    console.log("Zipping the contents of the output directory to `export.zip`");
 
-//     glob.sync("**/out/*.j*").forEach(function (file) {
-//         files.push({
-//             source: file,
-//             target: file.split("/")[1]
-//         });
-//     });
+    files.forEach(function (file) {
+        var fileName = file.split("/")[1];
+        zip.file(fileName, fs.readFileSync(file));
+    });
 
-//     zip.batchAdd(files, function () {
-//         zip.writeToFile("./export.zip");
-//         console.log("Done compressing");
-//     });
-// }
+    var content = zip.generate({
+        type: "nodebuffer"
+    });
+
+    fs.writeFile("./export.zip", content, function (err) {
+        if (err) {
+            console.error("An error occurred during the zipping proces!", err);
+        }
+        console.log("Done!");
+        console.log("You can now close this window.");
+    });
+}
 
 /**
  * Generate a unique identifier
