@@ -1,5 +1,6 @@
 **/*.jpg
-**/*.db
+db/*.db
+out/*.json
 export/
 
 #ignore thumbnails created by windows
