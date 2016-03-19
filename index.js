@@ -15,7 +15,7 @@ var weatherMap = require("./weatherMap.json");
  *  1. The output directory is empty
  *  2. The database file is present
  */
-if (checkOutputDir() && fs.existsSync(db)) {
+if (isEmpty() && fs.existsSync(db)) {
     createImageCache();
 
     var sqldb = new sqlite3.Database(db, sqlite3.OPEN_READONLY);
@@ -23,7 +23,7 @@ if (checkOutputDir() && fs.existsSync(db)) {
     sqldb.serialize(function () {
         sqldb.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
             if (err) {
-                console.error("Error occurred during processing.");
+                console.error("Error occurred during processing!");
             }
             processRow(row);
         });
@@ -31,7 +31,7 @@ if (checkOutputDir() && fs.existsSync(db)) {
 
     sqldb.close();
 } else {
-    console.error("Database can not be found or invalid format!");
+    console.error("Database file can not be found or invalid format!");
 }
 
 /**
@@ -57,10 +57,10 @@ function createImageCache() {
  * Check for the presence of JSON files in the output directory
  * Abort the operation if files exist
  */
-function checkOutputDir() {
+function isEmpty() {
     var entries = glob.sync("**/out/*.json");
     if (entries.length > 0) {
-        console.error("The `out` directory already contains files. Aborting operation.");
+        console.error("The `out` directory already contains files! Aborting operation...");
         return false;
     }
     return true;
@@ -71,15 +71,15 @@ function checkOutputDir() {
  * @param  {any} row
  */
 function processRow(row) {
-    console.log("Creating new entry for uuid ", row.DTM);
+    console.log("Creating new Journey entry for current Day Journal item ", row.DTM);
     var newItem = createEntry(row);
 
     if (row.HASPHOTOS === 1) {
-        console.log("Processing image...");
+        console.log("Processing image(s)...");
         newItem.photos = processImages(newItem.id, row);
     }
 
-    console.log("Saving entry to output directory...");
+    console.log("Saving Journey entry to output directory...");
     saveEntry(newItem.id, newItem);
 }
 
@@ -131,7 +131,7 @@ function processImages(id, row) {
             fsx.copySync(photo, path.join(__dirname, "out", newPhotoName));
         });
     } else {
-        console.warn("No image present for", row.UUID);
+        console.warn("No image(s) present for current Day Journal item", row.UUID);
     }
 
     return photos;
