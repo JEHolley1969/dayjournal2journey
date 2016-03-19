@@ -1,4 +1,3 @@
-require("colors");
 var EasyZip = require("easy-zip").EasyZip;
 var fs = require("fs");
 var fsx = require("fs-extra");
@@ -10,26 +9,24 @@ var file = "./db/dayjournal.db";
 var tpl = require("./templates/newItem.json");
 var weatherMap = require("./templates/weatherMap.json");
 
-if (fs.existsSync(file)) {
+if (checkOutputDir() && fs.existsSync(file)) {
     var db = new sqlite3.Database(file, sqlite3.OPEN_READONLY);
+
     db.serialize(function () {
         db.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
             if (err) {
-                console.error("Error occurred during processing.".red);
+                console.error("Error occurred during processing.");
             }
             processRow(row);
         });
     });
+
     db.close();
 } else {
-    console.error("Database can not be found or invalid format!".red);
+    console.error("Database can not be found or invalid format!");
 }
 
 function processRow(row) {
-    if (!checkOutputDir()) {
-        return;
-    }
-
     console.log("Creating new entry for uuid ", row.DTM);
     var newItem = createEntry(row);
 
@@ -40,15 +37,12 @@ function processRow(row) {
 
     console.log("Saving entry to output directory...");
     saveEntry(newItem.id, newItem);
-
-    console.log("Zipping the contents of the output directory...");
-    zipEntries();
 }
 
 function checkOutputDir() {
     var entries = glob.sync("**/out/*.json");
     if (entries.length > 0) {
-        console.error("The `out` directory already contains files. Aborting operation.".red);
+        console.error("The `out` directory already contains files. Aborting operation.");
         return false;
     }
     return true;
@@ -105,22 +99,24 @@ function saveEntry(id, content) {
                      JSON.stringify(content), "utf8");
 }
 
-function zipEntries() {
-    var zip = new EasyZip();
-    var files = [];
+// function zipEntries() {
+//     var zip = new EasyZip();
+//     var files = [];
 
-    glob.sync("**/out/*.j*").forEach(function (file) {
-        files.push({
-            source: file,
-            target: file.split("/")[1]
-        });
-    });
+//     console.log("Zipping the contents of the output directory...");
 
-    zip.batchAdd(files, function () {
-        zip.writeToFile("./export.zip");
-        console.log("Done compressing");
-    });
-}
+//     glob.sync("**/out/*.j*").forEach(function (file) {
+//         files.push({
+//             source: file,
+//             target: file.split("/")[1]
+//         });
+//     });
+
+//     zip.batchAdd(files, function () {
+//         zip.writeToFile("./export.zip");
+//         console.log("Done compressing");
+//     });
+// }
 
 function generateUuid() {
     function s4() {
