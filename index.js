@@ -21,7 +21,7 @@ if (isEmpty() && fs.existsSync(db)) {
     var sqldb = new sqlite3.Database(db, sqlite3.OPEN_READONLY);
 
     sqldb.serialize(function () {
-        sqldb.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY where UUID = '00BF9026B2BE45DBAEB3D6E913E92FC3'", function (err, row) {
+        sqldb.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
             if (err) {
                 console.error("Error occurred during processing!", err);
             }
