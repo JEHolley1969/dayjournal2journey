@@ -5,47 +5,60 @@ var JSZip = require("jszip");
 var path = require("path");
 var sqlite3 = require("sqlite3").verbose();
 
-var db = "./dayjournal.db";
-var imageCache = {};
 var tpl = require("./newItem.json");
 var weatherMap = require("./weatherMap.json");
+
+var db = "./dayjournal.db";
+var imageCache = {};
+var outDir = "out";
+var errors = {
+    database: "Database file can not be found or invalid format!",
+    isEmpty: "`" + outDir + "` directory already contains files! Aborting operation...",
+    processing: "Error occurred during processing!",
+    zipping: "An error occurred during the zipping proces!"
+};
+var query = "SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY";
 
 /**
  * Start processing on 2 conditions:
  *  1. The output directory is empty
  *  2. The database file is present
  */
-if (isEmpty() && fs.existsSync(db)) {
-    createImageCache();
+if (isEmpty()) {
+    if (fs.existsSync(db)) {
+        console.log("Processing started.");
+        createImageCache();
 
-    var sqldb = new sqlite3.Database(db, sqlite3.OPEN_READONLY);
+        var sqldb = new sqlite3.Database(db, sqlite3.OPEN_READONLY);
 
-    sqldb.serialize(function () {
-        sqldb.each("SELECT UUID, DTM, CONTENT, LOC_PLACENAME, LOC_LATITUDE, LOC_LONGITUDE, LOC_DISPLAYNAME, W_CELSIUS, W_ICONNAME, LASTMODIFIED, HASPHOTOS FROM DJENTRY", function (err, row) {
-            if (err) {
-                console.error("Error occurred during processing!", err);
-            }
-            processRow(row);
-        }, function (err, count) {
-            if (err) {
-                console.error("Error occurred during processing!", err);
-            }
-
-            console.log("Successfully processed " + count + " items.");
-
-            zipEntries(function (err) {
+        sqldb.serialize(function () {
+            sqldb.each(query, function (err, row) {
                 if (err) {
-                    console.error("An error occurred during the zipping proces!", err);
+                    console.error(errors.processing, err);
                 }
-                console.log("Done!");
-                console.log("You can now close this window.");
+                processRow(row);
+            }, function (err, count) {
+                if (err) {
+                    console.error(errors.processing, err);
+                }
+
+                console.log("Successfully processed " + count + " items.");
+
+                zipEntries(function (err) {
+                    if (err) {
+                        console.error(errors.zipping, err);
+                    }
+                    console.log("Done!\nYou can now close this window.");
+                });
             });
         });
-    });
 
-    sqldb.close();
+        sqldb.close();
+    } else {
+        console.error(errors.database);
+    }
 } else {
-    console.error("Database file can not be found or invalid format!");
+    console.error(errors.isEmpty);
 }
 
 /**
@@ -70,12 +83,8 @@ function createImageCache() {
  * Abort the operation if files exist
  */
 function isEmpty() {
-    var entries = glob.sync("**/out/*.json");
-    if (entries.length > 0) {
-        console.error("The `out` directory already contains files! Aborting operation...");
-        return false;
-    }
-    return true;
+    var entries = glob.sync("**/" + outDir + "/*.json");
+    return entries.length === 0;
 }
 
 /**
@@ -140,7 +149,7 @@ function processImages(id, row) {
         imageCache[row.UUID].forEach(function (photo) {
             var newPhotoName = id + "-" + generateUuid() + ".jpg";
             photos.push(newPhotoName);
-            fsx.copySync(photo, path.join(__dirname, "out", newPhotoName));
+            fsx.copySync(photo, path.join(__dirname, outDir, newPhotoName));
         });
     } else {
         console.warn("No image(s) present for current Day Journal item", row.UUID);
@@ -155,8 +164,8 @@ function processImages(id, row) {
  * @param  {any}    journeyEntry    Journey object
  */
 function saveEntry(id, journeyEntry) {
-    fs.writeFileSync(path.join(__dirname, "out", id + ".json"),
-                     JSON.stringify(journeyEntry), "utf8");
+    fs.writeFileSync(path.join(__dirname, outDir, id + ".json"),
+        JSON.stringify(journeyEntry), "utf8");
 }
 
 /**
@@ -165,9 +174,9 @@ function saveEntry(id, journeyEntry) {
  */
 function zipEntries(done) {
     var zip = new JSZip();
-    var files = glob.sync("**/out/*.j*");
+    var files = glob.sync("**/" + outDir + "/*.j*");
 
-    console.log("Zipping the contents of the output directory to `export.zip`");
+    console.log("Zipping the contents of the output directory to `djexport.zip`");
 
     files.forEach(function (file) {
         var fileName = file.split("/")[1];
