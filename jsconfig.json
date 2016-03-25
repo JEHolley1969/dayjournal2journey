@@ -1,3 +1,5 @@
 {
-
+    "exclude": [
+        "typings/main.d.ts"
+    ]
 }

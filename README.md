@@ -5,10 +5,10 @@ This Node app converts Day Journal entries into Journey entries including the pi
 * Run `npm install` in a terminal window
 
 ### Usage
-* Place all Day Journal images in the `images` folder
-* Place the `dayjournal.db` file in the project folder
+* Place all <strong>Day Journal</strong> images in the `images` folder
+* Place the `dayjournal.db` file in the root of the project folder
 * Execute `npm start` in a terminal window
-* Import the `djexport.zip` file in Journey using the import command
+* Import the generated `djexport.zip` file into <strong>Journey</strong> using its <em>import</em> command
 
 ### Todo
 * Process tags
